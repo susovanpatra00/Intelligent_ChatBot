@@ -21,7 +21,7 @@ An intelligent assistant that allows users to query PDF and Excel documents usin
 
 ```
 
-DO33\_Final/
+Intelligent_ChatBot/
 ├── backend/                     # All backend code
 │   ├── app.py                   # Flask API server
 │   ├── config.py                # Global config and flags
@@ -60,8 +60,8 @@ DO33\_Final/
 #### a. Create a Python virtual environment
 
 ```bash
-python -m venv do33_env
-source do33_env/bin/activate  # or do33_env\Scripts\activate on Windows
+python -m venv myenv
+source myenv/bin/activate  # or myenv\Scripts\activate on Windows
 ````
 
 #### b. Install dependencies
