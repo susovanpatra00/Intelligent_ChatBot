@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+# Ignore contents inside EXCEL and PDF, but keep the folders
+Data/EXCEL/*
+!Data/EXCEL/.gitkeep
+
+Data/PDF/*
+!Data/PDF/.gitkeep
+
+# Ignore node_modules folder
+node_modules/
+
+# Ignore environment files
+*.env
+
+# Ignore logs
+server.log
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore editor or OS metadata (optional)
+.vscode/
+.DS_Store
+Thumbs.db
+
+do33_env/
