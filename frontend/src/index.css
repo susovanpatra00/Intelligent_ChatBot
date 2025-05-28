@@ -1,11 +1,10 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0deg 0% 11.76%;
     --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
@@ -16,6 +15,7 @@
 
     --primary: 352 82% 57%;
     --primary-foreground: 0 0% 100%;
+    --primary-accent: #DA2128;
 
     --secondary: 0 100% 97%;
     --secondary-foreground: 352 82% 57%;
@@ -97,9 +97,9 @@
   @apply list-decimal pl-5 mb-2;
 }
 
-.chat-markdown h1, 
-.chat-markdown h2, 
-.chat-markdown h3, 
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3,
 .chat-markdown h4 {
   @apply font-bold my-2;
 }

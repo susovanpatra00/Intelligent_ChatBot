@@ -1,0 +1,62 @@
+header {
+    position: relative;
+}
+
+.product-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--primary-accent);
+}
+
+.text-chat-icon {
+    color: #ababab;
+}
+
+.welcome-wrapper .welcome-heading {
+    color: #f7f7f7;
+}
+
+.welcome-wrapper .welcome-text {
+    color: #ababab;
+}
+
+.welcome-wrapper .welcome-heading {
+    font-size: 35px;
+    font-weight: 500;
+}
+
+.welcome-heading-gradient {
+    background: linear-gradient(218deg, #E6F4EC 5%, #DA2128 92%, #F16B7C 93%);
+    background-size: 200% 200%;
+    /* make background larger for smooth animation */
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    display: inline-block;
+
+    animation: gradientShift 5s ease infinite;
+}
+
+.product-logo-text {
+    color: #f7f7f7;
+}
+
+.chat-textarea {
+    color: #f7f7f7;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}

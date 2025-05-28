@@ -40,13 +40,59 @@
 
 
 
+// import React from 'react';
+// import logo from '../assets/logo.png'; // Adjust the path as necessary
+
+// const Logo: React.FC = () => {
+//   return (
+//     <div className="flex items-center gap-2">
+//       <img src="/logo.png" alt="Logo" className="w-28 h-30 object-contain" />
+//     </div>
+
+//   );
+// };
+
+// export default Logo;
+
+
+
+
+
+
+
+
+
+
+
+// import React from 'react';
+// import logo from '../assets/logo.png'; // Adjust the path as necessary
+
+// const Logo: React.FC = () => {
+//   return (
+//     <div className="flex items-center gap-2">
+//       <img src="/logo.png" alt="Logo" className="object-contain" />
+//     </div>
+
+//   );
+// };
+
+// export default Logo;
+
+
+
+
+
+
+
+
+
 import React from 'react';
 import logo from '../assets/logo.png'; // Adjust the path as necessary
 
 const Logo: React.FC = () => {
   return (
     <div className="flex items-center gap-2">
-      <img src="/logo.png" alt="Logo" className="w-24 h-16 object-contain" />
+      <img src="/logo.png" alt="Logo" className="object-contain" />
     </div>
 
   );

@@ -1,4 +1,4 @@
-# 📚 Intelligence Assistant
+# 📚 Intelligence Assistant (DO33 Bot)
 
 An intelligent assistant that allows users to query PDF and Excel documents using natural language. Built using **React + Vite + TypeScript** on the frontend and **Flask + LangChain + OpenAI** on the backend. The system supports contextual retrieval, optional reasoning, and web search.
 

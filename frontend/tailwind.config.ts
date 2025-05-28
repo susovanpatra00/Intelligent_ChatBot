@@ -64,9 +64,14 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				chat: {
+					// red: {
+					// 	DEFAULT: '#ea384c',
+					// 	dark: '#c41c30',
+					// 	light: '#ffeeee',
+					// }
 					red: {
-						DEFAULT: '#ea384c',
-						dark: '#c41c30',
+						DEFAULT: '#c53030', // darker red
+						dark: '#a31620',    // even darker, if needed
 						light: '#ffeeee',
 					}
 				}
