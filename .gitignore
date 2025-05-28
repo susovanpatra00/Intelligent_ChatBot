@@ -26,10 +26,8 @@ dist-ssr
 
 # Ignore contents inside EXCEL and PDF, but keep the folders
 Data/EXCEL/*
-!Data/EXCEL/.gitkeep
 
 Data/PDF/*
-!Data/PDF/.gitkeep
 
 # Ignore node_modules folder
 node_modules/
