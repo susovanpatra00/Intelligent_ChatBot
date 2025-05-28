@@ -468,7 +468,7 @@ from flask_cors import CORS
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from retrieval.query_handler import search_similar_documents, generate_direct_answer
+from retrieval.query_handler import search_similar_documents, generate_direct_answer, process_user_query
 from reasoning.reasoner import generate_reasoning
 from websearch.web_search import perform_web_search
 from llm_response.final_responder import generate_final_answer
@@ -504,6 +504,23 @@ def serve_pdf(relative_path):
 def serve_excel(relative_path):
     full_path = EXCEL_DIR / relative_path
     return send_from_directory(full_path.parent, full_path.name) if full_path.exists() else ("Excel not found", 404)
+
+
+@app.route("/query", methods=["POST"])
+def query():
+    data = request.get_json()
+    user_question = data.get("query", "")
+    chat_history = data.get("chat_history", [])  # NEW: get chat history list
+    use_rewriting = data.get("use_rewriting", True)
+
+    result = process_user_query(user_question, chat_history, use_rewriting)
+
+    return jsonify(result)
+
+
+
+
+
 
 # === Chat Route ===
 @app.route("/chat", methods=["POST"])

@@ -110,6 +110,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from openai import OpenAI
 from config import ENABLE_PDF, ENABLE_EXCEL
+from rewriter.query_rewriter import rewrite_query
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -197,3 +198,21 @@ Question:
         temperature=0.3
     )
     return response.choices[0].message.content.strip()
+
+
+
+
+def process_user_query(user_question, chat_history=None, use_rewriting=True):
+    if use_rewriting and chat_history:
+        standalone_question = rewrite_query(user_question, chat_history)
+    else:
+        standalone_question = user_question
+
+    top_docs = search_similar_documents(standalone_question)
+    final_answer = generate_direct_answer(standalone_question, top_docs)
+
+    return {
+        "answer": final_answer,
+        "standalone_question": standalone_question,
+        "top_docs": top_docs
+    }
