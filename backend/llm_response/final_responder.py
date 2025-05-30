@@ -6,7 +6,7 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
-LLM_MODEL = "gpt-4o-mini"
+LLM_MODEL = "gpt-4o"
 
 def generate_final_answer(query, retrieval, reasoning=None, web=None):
     sections = [
@@ -18,21 +18,21 @@ def generate_final_answer(query, retrieval, reasoning=None, web=None):
     if web:
         sections.append(f"Web Search Result: {web}")
 
-    # prompt = "\n\n".join(sections) + "\n\nYou are a helpful assistant. Answer **only** using the information provided above. If the answer is not clearly present in the provided data, reply with: 'I’m sorry, I couldn’t find relevant information in the provided documents or data sources.'. Mention the source of each insight. If from 'web-search' then also mention the source urls. Also make the response more attractive and engaging for the user. And ask if they need any further assistance with some follow-up questions. Use emojis to make the response more engaging."
+    # prompt = "\n\n".join(sections) + "\n\nYou are a helpful assistant. Answer **only** using the information provided above. If the answer is not clearly present in the provided data, reply with: 'I’m sorry, I couldn’t find relevant information in the provided documents or data sources.'. **Mention the source of each insight.**"
 #     prompt = "\n\n".join(sections) + """
 
-# You are a helpful assistant. Answer **only** using the information provided above. 
-# If the answer is not clearly present in the provided data, reply with: 
+# You are a helpful assistant. Answer **only** using the information provided above.
+
+# If the answer is not clearly present in the provided data, reply with exactly this sentence:
 # 'I’m sorry, I couldn’t find relevant information in the provided documents or data sources.'
 
-# - Mention the source of each insight. If from 'web-search', include source URLs.
-# - Use symbols and emojis (if needed) to make the response more engaging.
-# - Make the response attractive and engaging using user-friendly language and emojis.
-# - If relevant information is found, end with a friendly message and suggest follow-up questions or keywords to explore.
-# - If no relevant information is found, do **not** add any follow-up questions or keyword suggestions.
-# - Only include a “🗂 Want to Explore More?” section when relevant information is available.
-# """
+# - Mention the source of each insight. If from 'web-search', include the source URLs.
+# - Make the response attractive and engaging using user-friendly language, symbols and emojis.
+# - At the end of your response, if and only if you did NOT return the "I'm sorry" message, add:
+#   🗂 Want to Explore More? : Here give some *similar keywords* related to the query and also some similar *questions* related to the query.
 
+# - Do NOT add the above section if your answer contains the "I'm sorry" sentence.
+# """
     prompt = "\n\n".join(sections) + """
 
 You are a helpful and knowledgeable assistant. Answer the user's query using **only** the information provided above.
@@ -55,6 +55,7 @@ You are a helpful and knowledgeable assistant. Answer the user's query using **o
 - ❓ *Related Questions:* (List 2–3 related, relevant questions)
 
 """
+
 
     response = client.chat.completions.create(
         model=LLM_MODEL,

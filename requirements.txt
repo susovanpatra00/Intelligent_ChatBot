@@ -10,3 +10,6 @@ huggingface-hub
 faiss-cpu
 sentence-transformers
 python-dotenv
+langchain-openai
+pyspellchecker
+flask-session

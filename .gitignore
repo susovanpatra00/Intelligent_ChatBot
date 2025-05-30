@@ -50,3 +50,13 @@ Thumbs.db
 do33_env/
 
 *.zip
+
+backend/vectorstore/vectorstore_excel/*
+backend/vectorstore/vectorstore_pdf/*
+backend/data_ingestion/excel_docs.pkl
+backend/data_ingestion/pdf_docs.pkl
+backend/data_ingestion/excel_hashes.json
+backend/data_ingestion/pdf_hashes.json
+backend/server.log
+server.log
+
