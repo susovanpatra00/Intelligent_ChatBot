@@ -5,6 +5,8 @@ import pickle
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 BASE_DIR = Path(__file__).resolve().parent  # backend/ingestion
 PROJECT_ROOT = BASE_DIR.parent.parent       # DO33_Final/
@@ -33,20 +35,31 @@ def save_hashes(hashes):
 
 def load_documents(pdf_paths):
     docs = []
+    # Approximate 800 words ≈ 4000 characters, 200 words ≈ 1000 characters
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=4000,
+        chunk_overlap=1000
+    )
     for path in pdf_paths:
         loader = PyPDFLoader(path)
         pages = loader.load()
         full_text = "\n".join(page.page_content for page in pages)
         relative_path = os.path.relpath(path, PDF_ROOT)
-        doc = Document(
-            page_content=full_text,
-            metadata={
-                "source": os.path.basename(path),
-                "relative_path": relative_path
-            }
+        file_name = os.path.basename(path)
+        parent_pdf_id = relative_path  # or use a hash if you prefer
+
+        # Split into chunks with metadata
+        chunks = text_splitter.create_documents(
+            [full_text],
+            metadatas=[{
+                "source": file_name,
+                "relative_path": relative_path,
+                "parent_pdf_id": parent_pdf_id
+            }]
         )
-        docs.append(doc)
+        docs.extend(chunks)
     return docs
+
 
 if __name__ == "__main__":
     print("📂 Scanning for PDF changes...")
