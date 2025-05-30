@@ -521,7 +521,6 @@ def query():
 
 
 
-
 # === Chat Route ===
 @app.route("/chat", methods=["POST"])
 def chat():

@@ -39,7 +39,7 @@ def rewrite_query(user_question: str, chat_history: list[str]) -> str:
     Returns:
         str: A standalone, contextually complete version of the user question.
     """
-    history_str = "\n".join(chat_history[-6:])  # Only use last 6 turns to keep it relevant
+    history_str = "\n".join(chat_history[-4:])  
     return query_rewriter_chain.invoke({
         "chat_history": history_str,
         "user_question": user_question

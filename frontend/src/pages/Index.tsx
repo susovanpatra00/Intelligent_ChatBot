@@ -480,13 +480,34 @@ const Index = () => {
   // Mock API call - in a real app, this would call your backend
   const sendMessageToBackend = async (content: string, option: ChatOption) => {
     setIsLoading(true);
+    // 1. Call your query rewriting API or function here
+    // 1. Call your query rewriting API or function here
+    let rewrittenQuery = content; // default fallback
+
+    try {
+      const rewriteRes = await fetch("http://localhost:5001/rewrite_query", {  // your query rewriting endpoint
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: content, conversation: messages }), // send previous messages for context
+      });
+      if (rewriteRes.ok) {
+        const rewriteData = await rewriteRes.json();
+        rewrittenQuery = rewriteData.rewrittenQuery || content;
+      }
+    } catch (err) {
+      console.warn("Query rewrite failed, using original query");
+    }
+
+    // 2. Use rewrittenQuery instead of content for backend chat call
+
 
     try {
       const res = await fetch("http://localhost:5001/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: content,
+          // query: content,
+          query: rewrittenQuery,
           reasoning: option === "reasoning",
           web: option === "web-search"
         }),
