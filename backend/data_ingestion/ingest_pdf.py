@@ -46,7 +46,7 @@ def load_documents(pdf_paths):
         full_text = "\n".join(page.page_content for page in pages)
         relative_path = os.path.relpath(path, PDF_ROOT)
         file_name = os.path.basename(path)
-        parent_pdf_id = relative_path  # or use a hash if you prefer
+        parent_pdf_id = relative_path  
 
         # Split into chunks with metadata
         chunks = text_splitter.create_documents(
