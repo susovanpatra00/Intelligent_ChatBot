@@ -34,20 +34,42 @@ LLM_MODEL = "gpt-4o-mini"
 pdf_vectordb = FAISS.load_local(str(PDF_VECTORSTORE), EMBEDDER, allow_dangerous_deserialization=True) if ENABLE_PDF and PDF_VECTORSTORE.exists() else None
 excel_vectordb = FAISS.load_local(str(EXCEL_VECTORSTORE), EMBEDDER, allow_dangerous_deserialization=True) if ENABLE_EXCEL and EXCEL_VECTORSTORE.exists() else None
 
+def get_all_pdf_chunks(parent_pdf_id, vectordb):
+    '''
+    This function fetches all chunks from the same PDF using parent_pdf_id
+    '''
+
+    all_chunks = []
+    for doc in vectordb.docstore._dict.values():
+        if doc.metadata.get("parent_pdf_id") == parent_pdf_id:
+            all_chunks.append(doc)
+    # Optionally, sort by chunk index if you added it
+    all_chunks.sort(key=lambda d: d.metadata.get("chunk_index", 0))
+    return all_chunks
+
 def search_similar_documents(query, k=10):
     all_docs = []
 
     if pdf_vectordb:
         pdf_results = pdf_vectordb.similarity_search_with_score(query, k=k)
+        added_pdf_ids = set()
+        print("Top-matching PDF chunks:")
         for doc, score in pdf_results:
             if score <= SCORE_THRESHOLD:
-                all_docs.append({
-                    "FileName": doc.metadata.get("source", "Unknown"),
-                    "FileLocation": str(PDF_DATA_DIR / doc.metadata.get("relative_path", "")),
-                    "Content": doc.page_content,
-                    "score": score,
-                    "metadata": doc.metadata
-                })
+                parent_pdf_id = doc.metadata.get("parent_pdf_id")
+                print(f"  Chunk from PDF: {doc.metadata.get('source')} | parent_pdf_id: {parent_pdf_id} | Score: {score:.4f}")
+                if parent_pdf_id and parent_pdf_id not in added_pdf_ids:
+                    # Fetch all chunks from this PDF
+                    pdf_chunks = get_all_pdf_chunks(parent_pdf_id, pdf_vectordb)
+                    combined_content = "\n\n".join(chunk.page_content for chunk in pdf_chunks)
+                    all_docs.append({
+                        "FileName": doc.metadata.get("source", "Unknown"),
+                        "FileLocation": str(PDF_DATA_DIR / doc.metadata.get("relative_path", "")),
+                        "Content": combined_content,
+                        "score": score,
+                        "metadata": doc.metadata
+                    })
+                    added_pdf_ids.add(parent_pdf_id)
 
     if excel_vectordb:
         excel_results = excel_vectordb.similarity_search_with_score(query, k=k)
