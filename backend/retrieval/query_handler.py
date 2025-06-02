@@ -23,9 +23,9 @@ DATA_DIR = BASE_DIR.parent / "Data"  # go up to DO33_Final/
 PDF_DATA_DIR = DATA_DIR / "PDF"
 EXCEL_DATA_DIR = DATA_DIR / "EXCEL"
 
-SCORE_THRESHOLD = 0.99
+SCORE_THRESHOLD = 1.15
 
-EMBEDDER = OpenAIEmbeddings(model="text-embedding-3-large")
+EMBEDDER = OpenAIEmbeddings(model="text-embedding-3-small")
 print("Using OpenAI Embedding model:", EMBEDDER.model)
 client = OpenAI(api_key=OPENAI_API_KEY)
 LLM_MODEL = "gpt-4o-mini"
@@ -58,6 +58,8 @@ def search_similar_documents(query, k=5):
             if score <= SCORE_THRESHOLD:
                 parent_pdf_id = doc.metadata.get("parent_pdf_id")
                 print(f"  Chunk from PDF: {doc.metadata.get('source')} | parent_pdf_id: {parent_pdf_id} | Score: {score:.4f}")
+                print(f"  Content: {doc.page_content}...")  # Print first 100 chars of content
+                # 
                 if parent_pdf_id and parent_pdf_id not in added_pdf_ids:
                     # Fetch all chunks from this PDF
                     pdf_chunks = get_all_pdf_chunks(parent_pdf_id, pdf_vectordb)
@@ -82,7 +84,6 @@ def search_similar_documents(query, k=5):
                     "score": score,
                     "metadata": doc.metadata
                 })
-
     return sorted(all_docs, key=lambda d: d["score"])[:k]
 
 def generate_direct_answer(query, top_docs):

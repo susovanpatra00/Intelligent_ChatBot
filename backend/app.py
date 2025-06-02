@@ -198,6 +198,24 @@ def chat():
         print("❌ Error:", e)
         return jsonify({"error": "Server error", "details": str(e)}), 500
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # === Feedback Logging ===
 @app.route("/feedback", methods=["POST"])
 def feedback():

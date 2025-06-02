@@ -53,7 +53,7 @@ EXCEL_VECTOR_DIR = BASE_DIR / "backend" / "vectorstore" / "vectorstore_excel"
 
 
 def embed_and_store(documents, path, batch_size=100):
-    embedder = OpenAIEmbeddings(model="text-embedding-3-large")
+    embedder = OpenAIEmbeddings(model="text-embedding-3-small")
     all_texts = [doc.page_content for doc in documents]
     all_metadatas = [doc.metadata for doc in documents]
 
