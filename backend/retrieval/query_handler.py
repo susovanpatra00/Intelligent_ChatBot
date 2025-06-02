@@ -47,7 +47,7 @@ def get_all_pdf_chunks(parent_pdf_id, vectordb):
     all_chunks.sort(key=lambda d: d.metadata.get("chunk_index", 0))
     return all_chunks
 
-def search_similar_documents(query, k=10):
+def search_similar_documents(query, k=5):
     all_docs = []
 
     if pdf_vectordb:
@@ -95,13 +95,20 @@ def generate_direct_answer(query, top_docs):
 You are a helpful assistant. 
 Answer the user's question strictly based on the information provided below. 
 If the information is incomplete, answer as best you can using what is available, "DO NOT USE YOUR OWN KNOWLEDGE"
-Only reply "I’m sorry, I couldn’t find relevant information in the provided documents." if the information below is completely unrelated or empty.
+Only reply "I’m sorry, I couldn’t find relevant information. Please provide some more information like: Title, Implementation, Purpose, Line / Section, Process, Company or Unit. " if the information below is completely unrelated or empty.
 
 Format your answer clearly and engagingly:
 - **Bold** important terms or phrases.
 - *Italicize* for emphasis.
 - Use bullet points or numbered lists if helpful.
+- Do include 'Title', 'Implementation', 'Purpose', 'Line / Section', 'Process', 'Month and Year', 'Company', 'Unit' and 'Contact Person Details' if available in the context.
 - Do NOT mention document numbers, file names, or scores.
+
+
+✨ At the end of your answer (only if a valid answer was given), include this:
+🗂 **Want to Explore More?**
+- 🔍 *Similar Keywords:* (List 3–5 related keywords)
+- ❓ *Related Questions:* (List 2–3 related, relevant questions)
 
 Information:
 {context}
@@ -115,4 +122,5 @@ Question:
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2
     )
+    # print("\nDirect Answer Generated: ", response.choices[0].message.content.strip())
     return response.choices[0].message.content.strip()

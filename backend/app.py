@@ -18,6 +18,7 @@ from rewrite.rewrite_query import rewrite_standalone_query
 from spellchecker import SpellChecker
 import csv
 from datetime import datetime
+from utils.file_helpers import get_location
 
 LOG_FILE = "chat_log.csv"
 spell = SpellChecker()
@@ -99,7 +100,7 @@ def serve_pdf(relative_path):
 
 @app.route("/reset_session", methods=["POST"])
 def reset_session():
-    session.pop("history", None)  # Remove chat history from session
+    session.pop("history", None)
     return jsonify({"message": "Session history cleared."})
 
 
@@ -109,9 +110,7 @@ def reset_session():
 def chat():
     data = request.json
     query = data.get("query", "")
-    print(query)
     query = correct_query(query)
-    print(query)
     use_reasoning = data.get("reasoning", False)
     use_web = data.get("web", False)
 
@@ -125,7 +124,7 @@ def chat():
         history_strings = [
             f"User: {item['Query']} Bot: {item['Bot Reply']}" for item in history
         ]
-        # print(f"\nHistory Got: {history_strings}")
+        print(f"\nHistory Got: {history_strings}")
         standalone_query = rewrite_standalone_query(history_strings, query)
         print(f"\nActual Query: {query} \nStandalone Query: {standalone_query}\n")
         # -------------------------------------------- #
@@ -138,18 +137,12 @@ def chat():
             with ThreadPoolExecutor() as executor:
                 web = executor.submit(perform_web_search, query).result()
             final_answer = generate_final_answer(standalone_query, retrieval_answer, reasoning, web)
-            # -----------------------------------------------------------------------------------
+            
             session_id = session.get("session_id", "unknown")
             ip = request.remote_addr
             country = get_location(ip)
             log_interaction(session_id, ip, country, query, final_answer)
-            # -----------------------------------------------------------------------------------
-            history.append({"Query": query, "Bot Reply": final_answer})
-            history = history[-4:]
-            # print(f"\nHistory Saved: {history}")
-            session["history"] = history
 
-            # Return only web search results and final answer, no sources
             return jsonify({
                 "retrieval": None,
                 "reasoning": None,
@@ -158,22 +151,18 @@ def chat():
                 "sources": []
             })
         else:
-        
-            top_docs = search_similar_documents(standalone_query, k=10)
-            print(f"\nContext: {top_docs}\n")
+            top_docs = search_similar_documents(standalone_query, k=5)
             retrieval_answer = generate_direct_answer(standalone_query, top_docs)
-    
-            reasoning = generate_reasoning(query, retrieval_answer) if use_reasoning else None
-            final_answer = generate_final_answer(standalone_query, retrieval_answer, reasoning, web)
-            # --------------------- modified ------------------------ #
-            history.append({"Query": query, "Bot Reply": final_answer})
+            if not use_reasoning:
+                final_answer = retrieval_answer
+            else:
+                reasoning = generate_reasoning(query, retrieval_answer) 
+                final_answer = generate_final_answer(standalone_query, retrieval_answer, reasoning)
+
+            history.append({"Query": standalone_query, "Bot Reply": final_answer})
             history = history[-4:]
-            # print(f"\nHistory Saved: {history}")
             session["history"] = history
-            # ------------------------------------------------------- #
-    
-            # print(f"Query: {query}\nBot Reply: {final_answer}")
-    
+            
             # Build source download links
             source_buttons = []
             for doc in top_docs:
@@ -183,9 +172,6 @@ def chat():
                 if PDF_DIR in file_path.parents:
                     base = PDF_DIR
                     route = "pdfs"
-                # elif EXCEL_DIR in file_path.parents:
-                #     base = EXCEL_DIR
-                #     route = "excels"
                 else:
                     continue
     
@@ -194,10 +180,6 @@ def chat():
                 url = f"http://10.245.146.157:8789/{route}/{encoded_path}"
     
                 row_note = ""
-                # if route == "excels":
-                #     row = doc.get("metadata", {}).get("row")
-                #     if row is not None:
-                #         row_note = f" (row {row})"
     
                 source_buttons.append({
                     "file": f"{file_name}{row_note}",
