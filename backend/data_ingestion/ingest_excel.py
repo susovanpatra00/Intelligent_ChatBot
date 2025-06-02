@@ -36,24 +36,30 @@ def load_excel_documents(paths):
     for path in paths:
         try:
             xls = pd.ExcelFile(path)
-            for sheet_name in xls.sheet_names:
-                df = xls.parse(sheet_name).fillna("")
-                for i, row in df.iterrows():
-                    content = "\n".join([f"{col}: {row[col]}" for col in df.columns])
-                    relative = os.path.relpath(path, EXCEL_DIR)
-                    doc = Document(
-                        page_content=content,
-                        metadata={
-                            "source": os.path.basename(path),
-                            "relative_path": relative,
-                            "sheet": sheet_name,
-                            "row": i
-                        }
-                    )
-                    docs.append(doc)
+            main_sheet = xls.sheet_names[0]     # Using only the first (main) sheet
+            df = xls.parse(main_sheet).fillna("")
+            
+            # Removing 'S.No.' column if it exists
+            if 'S.No.' in df.columns:
+                df = df.drop(columns=['S.No.'])
+            for i, row in df.iterrows():
+                # Build content string excluding 'S.No.'
+                content = "\n".join([f"{col}: {row[col]}" for col in df.columns])
+                relative = os.path.relpath(path, EXCEL_DIR)
+                doc = Document(
+                    page_content=content,
+                    metadata={
+                        "source": os.path.basename(path),
+                        "relative_path": relative,
+                        "sheet": main_sheet,
+                        "row": i
+                    }
+                )
+                docs.append(doc)
         except Exception as e:
             print(f"❌ Error reading {path}: {e}")
     return docs
+
 
 if __name__ == "__main__":
     paths = get_all_excel_files(EXCEL_DIR)

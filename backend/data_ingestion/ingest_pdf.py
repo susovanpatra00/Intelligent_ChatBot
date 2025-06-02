@@ -79,3 +79,5 @@ if __name__ == "__main__":
         print(f"✅ Stored {len(docs)} documents to {DOCS_OUTPUT.name}")
     else:
         print("✅ No changes found. PDFs are up-to-date.")
+
+
