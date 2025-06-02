@@ -11,6 +11,7 @@ import pickle
 from pathlib import Path
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
+from langchain_core.documents import Document
 from dotenv import load_dotenv
 load_dotenv()
 assert os.getenv("OPENAI_API_KEY"), "OPENAI_API_KEY not found in environment!"
@@ -44,11 +45,31 @@ PDF_VECTOR_DIR = BASE_DIR / "backend" / "vectorstore" / "vectorstore_pdf"
 EXCEL_VECTOR_DIR = BASE_DIR / "backend" / "vectorstore" / "vectorstore_excel"
 
 # ==== Embedding Function ====
-def embed_and_store(documents, path):
+# def embed_and_store(documents, path):
+#     embedder = OpenAIEmbeddings(model="text-embedding-3-large")
+#     db = FAISS.from_documents(documents, embedder)
+#     db.save_local(str(path))
+#     print(f"✅ Embeddings stored in {path}")
+
+
+def embed_and_store(documents, path, batch_size=100):
     embedder = OpenAIEmbeddings(model="text-embedding-3-large")
-    db = FAISS.from_documents(documents, embedder)
+    all_texts = [doc.page_content for doc in documents]
+    all_metadatas = [doc.metadata for doc in documents]
+
+    # Split into batches
+    db = None
+    for i in range(0, len(all_texts), batch_size):
+        batch_texts = all_texts[i:i+batch_size]
+        batch_metadatas = all_metadatas[i:i+batch_size]
+        batch_docs = [Document(page_content=t, metadata=m) for t, m in zip(batch_texts, batch_metadatas)]
+        if db is None:
+            db = FAISS.from_documents(batch_docs, embedder)
+        else:
+            db.add_documents(batch_docs)
     db.save_local(str(path))
     print(f"✅ Embeddings stored in {path}")
+
 
 
 # ==== PDF Embedding ====
