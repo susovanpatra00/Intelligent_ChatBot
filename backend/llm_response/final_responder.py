@@ -9,17 +9,20 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 LLM_MODEL = "gpt-4o"
 
 def generate_final_answer(query, retrieval, reasoning=None, web=None):
-    sections = [
-        f"Question: {query}",
-        f"Retrieved Answer: {retrieval}"
-    ]
-    if reasoning:
-        sections.append(f"Reasoning Answer: {reasoning}")
     if web:
-        sections.append(f"Web Search Result: {web}")
+        sections = [
+            f"Query: {query}",
+            f"Web Search Result: {retrieval}"
+        ]
+    else:
+        sections = [
+            f"Question: {query}",
+            f"Retrieved Answer: {retrieval}"
+        ]
+        if reasoning:
+            sections.append(f"Reasoning Answer: {reasoning}")
 
     
-    print("\n\nSections for Final Answer Generation:", sections)
     prompt = "\n\n".join(sections) + """
 
 You are a helpful and knowledgeable assistant. Your task is to **ONLY rearrange, rephrase, and format** the information provided above according to the writing standards below. 
