@@ -23,12 +23,12 @@ DATA_DIR = BASE_DIR.parent / "Data"  # go up to DO33_Final/
 PDF_DATA_DIR = DATA_DIR / "PDF"
 EXCEL_DATA_DIR = DATA_DIR / "EXCEL"
 
-SCORE_THRESHOLD = 1.15
+SCORE_THRESHOLD = 0.99
 
 EMBEDDER = OpenAIEmbeddings(model="text-embedding-3-small")
 print("Using OpenAI Embedding model:", EMBEDDER.model)
 client = OpenAI(api_key=OPENAI_API_KEY)
-LLM_MODEL = "gpt-4o-mini"
+LLM_MODEL = "gpt-4o"
 
 # === Load Vector Stores (conditional) ===
 pdf_vectordb = FAISS.load_local(str(PDF_VECTORSTORE), EMBEDDER, allow_dangerous_deserialization=True) if ENABLE_PDF and PDF_VECTORSTORE.exists() else None
@@ -53,13 +53,12 @@ def search_similar_documents(query, k=5):
     if pdf_vectordb:
         pdf_results = pdf_vectordb.similarity_search_with_score(query, k=k)
         added_pdf_ids = set()
-        print("Top-matching PDF chunks:")
+        # print("Top-matching PDF chunks:")
         for doc, score in pdf_results:
             if score <= SCORE_THRESHOLD:
                 parent_pdf_id = doc.metadata.get("parent_pdf_id")
-                print(f"  Chunk from PDF: {doc.metadata.get('source')} | parent_pdf_id: {parent_pdf_id} | Score: {score:.4f}")
-                print(f"  Content: {doc.page_content}...")  # Print first 100 chars of content
-                # 
+                # print(f"  Chunk from PDF: {doc.metadata.get('source')} | parent_pdf_id: {parent_pdf_id} | Score: {score:.4f}")
+                # print(f"  Content: {doc.page_content}...")  # Print first 100 chars of content
                 if parent_pdf_id and parent_pdf_id not in added_pdf_ids:
                     # Fetch all chunks from this PDF
                     pdf_chunks = get_all_pdf_chunks(parent_pdf_id, pdf_vectordb)
@@ -96,15 +95,17 @@ def generate_direct_answer(query, top_docs):
 You are a helpful assistant. 
 Answer the user's question strictly based on the information provided below. 
 If the information is incomplete, answer as best you can using what is available, "DO NOT USE YOUR OWN KNOWLEDGE"
-Only reply "I’m sorry, I couldn’t find relevant information. Please provide some more information like: Title, Implementation, Purpose, Line / Section, Process, Company or Unit. " if the information below is completely unrelated or empty.
+
+"Only respond with: 'I’m sorry, I couldn’t find relevant information. Please provide additional context, such as Title, Implementation, Purpose, Line/Section, Process, Company, or Unit (any of these would help).' — if the input is completely unrelated or empty."
+
 
 Format your answer clearly and engagingly:
 - **Bold** important terms or phrases.
 - *Italicize* for emphasis.
-- Use bullet points or numbered lists if helpful.
+- Use engaging and reader-friendly language, with **symbols** and **emojis** to enhance readability.
+- Structure your response well, using **bullet points**, **highlights**, or **subheadings** when helpful.
 - Do include 'Title', 'Implementation', 'Purpose', 'Line / Section', 'Process', 'Month and Year', 'Company', 'Unit' and 'Contact Person Details' if available in the context.
 - Do NOT mention document numbers, file names, or scores.
-
 
 ✨ At the end of your answer (only if a valid answer was given), include this:
 🗂 **Want to Explore More?**

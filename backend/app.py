@@ -16,24 +16,14 @@ from websearch.web_search import perform_web_search
 from llm_response.final_responder import generate_final_answer
 from rewrite.rewrite_query import rewrite_standalone_query
 from spellchecker import SpellChecker
-import csv
-from datetime import datetime
-from utils.file_helpers import get_location
+# ============================================================ #
+from utils.file_helpers import log_interaction
+import socket
+import traceback
+# ============================================================ #
 
-LOG_FILE = "chat_log.csv"
+
 spell = SpellChecker()
-FEEDBACK_LOG = "feedback_log.csv"
-
-def log_feedback(session_id, ip, message_id, feedback):
-    with open(FEEDBACK_LOG, "a", newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            datetime.utcnow().isoformat(),
-            session_id,
-            ip,
-            message_id,
-            feedback  
-        ])
         
 def correct_query(query):
     corrected_words = []
@@ -47,18 +37,6 @@ def correct_query(query):
     return ' '.join(corrected_words)
 
 
-
-def log_interaction(session_id, ip, country, query, answer):
-    with open(LOG_FILE, "a", newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            datetime.utcnow().isoformat(),
-            session_id,
-            ip,
-            country,
-            query,
-            answer
-        ])
     
 # === Logging Setup ===
 logging.basicConfig(
@@ -108,6 +86,10 @@ def reset_session():
 # === Chat Route ===
 @app.route("/chat", methods=["POST"])
 def chat():
+    if "session_id" not in session:
+        import uuid
+        session["session_id"] = str(uuid.uuid4())
+
     data = request.json
     query = data.get("query", "")
     query = correct_query(query)
@@ -121,10 +103,8 @@ def chat():
     try:
         # --------------- modified ------------------- #
         history = session.get("history", [])
-        history_strings = [
-            f"User: {item['Query']} Bot: {item['Bot Reply']}" for item in history
-        ]
-        print(f"\nHistory Got: {history_strings}")
+        history_strings = [f"{item['role'].capitalize()}: {item['content']}" for item in history]
+
         standalone_query = rewrite_standalone_query(history_strings, query)
         print(f"\nActual Query: {query} \nStandalone Query: {standalone_query}\n")
         # -------------------------------------------- #
@@ -138,10 +118,12 @@ def chat():
                 web = executor.submit(perform_web_search, query).result()
             final_answer = generate_final_answer(standalone_query, retrieval_answer, reasoning, web)
             
-            session_id = session.get("session_id", "unknown")
-            ip = request.remote_addr
-            country = get_location(ip)
-            log_interaction(session_id, ip, country, query, final_answer)
+            # ============================================================ #
+            try:
+                log_interaction(query=query, answer=final_answer)
+            except Exception as e:
+                logger.error(f"Logging failed: {e}")
+            # ============================================================ #
 
             return jsonify({
                 "retrieval": None,
@@ -159,8 +141,16 @@ def chat():
                 reasoning = generate_reasoning(query, retrieval_answer) 
                 final_answer = generate_final_answer(standalone_query, retrieval_answer, reasoning)
 
-            history.append({"Query": standalone_query, "Bot Reply": final_answer})
-            history = history[-4:]
+            # ============================================================ #
+            try:
+                log_interaction(query=query, answer=final_answer)
+            except Exception as e:
+                logger.error(f"Logging failed: {e}")
+            # ============================================================ #
+
+            history.append({"role": "user", "content": query})
+            history.append({"role": "assistant", "content": final_answer})
+            history = history[-8:]
             session["history"] = history
             
             # Build source download links
@@ -195,7 +185,10 @@ def chat():
             })
 
     except Exception as e:
+        # print("❌ Error:", e)
+        # return jsonify({"error": "Server error", "details": str(e)}), 500
         print("❌ Error:", e)
+        traceback.print_exc()  # This will show the full error stack trace
         return jsonify({"error": "Server error", "details": str(e)}), 500
 
 
@@ -246,14 +239,6 @@ def feedback():
         writer = csv.DictWriter(f, fieldnames=["Likes", "Dislikes"])
         writer.writeheader()
         writer.writerow({"Likes": likes, "Dislikes": dislikes})
-
-    # -------------------------------------------------------------------------
-    session_id = session.get("session_id", "unknown")
-    ip = request.remote_addr
-    message_id = data.get("message_id", "unknown")
-    feedback_type = "like" if liked else "dislike" if disliked else "none"
-    log_feedback(session_id, ip, message_id, feedback_type)
-    # -------------------------------------------------------------------------
     
     return jsonify({"message": "Feedback recorded", "likes": likes, "dislikes": dislikes})
 

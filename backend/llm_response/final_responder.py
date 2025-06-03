@@ -12,7 +12,7 @@ def generate_final_answer(query, retrieval, reasoning=None, web=None):
     if web:
         sections = [
             f"Query: {query}",
-            f"Web Search Result: {retrieval}"
+            f"Web Search Result: {web}"
         ]
     else:
         sections = [

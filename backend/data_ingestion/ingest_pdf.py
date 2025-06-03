@@ -37,8 +37,8 @@ def load_documents(pdf_paths):
     docs = []
     # Approximate 800 words ≈ 4000 characters, 200 words ≈ 1000 characters
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=200,
-        chunk_overlap=50
+        chunk_size=550,
+        chunk_overlap=150
     )
     for path in pdf_paths:
         loader = PyPDFLoader(path)
