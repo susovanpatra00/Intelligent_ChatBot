@@ -8,8 +8,8 @@ const ChatHeader: React.FC = () => {
       <div className="flex items-center justify-between">
         <Logo />
         <div className="product-logo flex items-center gap-2">
-          <BotMessageSquare className="w-12 h-12 product-logo-img" />
-          <span className="font-bold text-3xl product-logo-text">DO33 Bot</span>
+          <BotMessageSquare className="w-6 h-6 product-logo-img" />
+          <span className="font-bold text-3xl product-logo-text">Nexus Bot</span>
         </div>
         <div className="w-[100px]">
           {/* Empty div to balance the header */}
