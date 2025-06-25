@@ -42,7 +42,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             </div>
-            <h3 className="welcome-heading mb-1">Welcome to <span className='welcome-heading-gradient gradient-animation'>Motherson!</span></h3>
+            <h3 className="welcome-heading mb-1">Welcome to <span className='welcome-heading-gradient gradient-animation'>Nexus!</span></h3>
             <p className="welcome-text max-w-sm">
               Ask me anything! AI Chatbot with advanced reasoning and web search capabilities.
             </p>

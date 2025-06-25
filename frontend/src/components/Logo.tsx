@@ -92,7 +92,7 @@ import logo from '../assets/logo.png'; // Adjust the path as necessary
 const Logo: React.FC = () => {
   return (
     <div className="flex items-center gap-2">
-      <img src="/logo.png" alt="Logo" className="object-contain" />
+      <img src="/logo.png" alt="Logo" className="h-8 w-32 object-contain" />
     </div>
 
   );

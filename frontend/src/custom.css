@@ -43,8 +43,12 @@ header {
     color: #f7f7f7;
 }
 
-.chat-textarea {
+/* .chat-textarea {
     color: #f7f7f7;
+} */
+
+.chat-textarea {
+    color: #f7f7f7 !important;
 }
 
 @keyframes gradientShift {

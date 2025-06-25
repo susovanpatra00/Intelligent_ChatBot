@@ -60,3 +60,4 @@ backend/data_ingestion/pdf_hashes.json
 backend/server.log
 server.log
 
+venv
